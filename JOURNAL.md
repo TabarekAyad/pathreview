@@ -101,3 +101,21 @@ Run `make check` and `make test-unit` to confirm no new failures, then open a dr
 
 **Blockers:**
 None.
+
+---
+
+### Check-in 2 (end of week)
+
+**PR link:** https://github.com/ascherj/pathreview/pull/1037
+
+**Branch:** `fix/47-persist-agent-state`
+
+**What you built:**
+Fixed two bugs in `agent/orchestrator.py`: incremental Redis persistence (writing session state after each tool instead of once at the end of the run) and resume logic (skipping already-completed tools on restart by consulting session state at the top of the loop). Also fixed a pre-existing `AttributeError` in the health endpoint, wired Redis into the app startup lifecycle, and added AOF persistence to docker-compose so state survives container restarts.
+
+**Tests added or updated:**
+`tests/unit/test_orchestrator.py` — two tests written in Week 8 as reproduction cases now pass: `test_state_persisted_after_each_tool` confirms `setex` is called once per tool, and `test_completed_tools_skipped_on_resume` confirms already-completed tools are not re-run on restart.
+
+**Self-review confirmation:** [x] make check passes (pre-existing failures documented in PR — no new errors introduced)  [x] make test-unit passes
+
+**Draft PR feedback received from:** none
