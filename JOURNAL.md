@@ -67,9 +67,9 @@ No open blockers or dependent issues referenced in #47.
 
 ---
 
-## Reproduction & solution planning
+## Week 8 - Reproduction & solution planning
 
-**Reproduction commit link:** [to be added after commit]
+**Reproduction commit link:** [d13369f](https://github.com/TabarekAyad/pathreview/commit/d13369fcf37c1a6bb7cda42b7c3048e37111f3c6)
 
 **Reproduction summary:**
 I used Claude Code to write the reproduction tests in `tests/unit/test_orchestrator.py`, understand the mypy pre-commit hook errors, and draft PLAN.md.
@@ -77,7 +77,7 @@ I used Claude Code to write the reproduction tests in `tests/unit/test_orchestra
 
 Added two failing unit tests in `tests/unit/test_orchestrator.py` that directly demonstrate the bug: the first confirms that `session_store.set()` is only called once (at the end of the loop) instead of after each tool, and the second confirms that already-completed tools stored in Redis are re-run unconditionally on restart instead of being skipped. Both tests fail against the current code, confirming the issue is real and exactly located in `agent/orchestrator.py` lines 52–67.
 
-**PLAN.md link:** [to be added after commit]
+**PLAN.md link:** [PLAN.md](https://github.com/TabarekAyad/pathreview/blob/fix/47-persist-agent-state/PLAN.md)
 
 **Walkthrough video (recommended):** [not recorded]
 
