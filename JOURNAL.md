@@ -119,3 +119,44 @@ Fixed two bugs in `agent/orchestrator.py`: incremental Redis persistence (writin
 **Self-review confirmation:** [x] make check passes (pre-existing failures documented in PR — no new errors introduced)  [x] make test-unit passes
 
 **Draft PR feedback received from:** none
+
+---
+
+## Week 10 — Iteration & reflection
+
+### Reviewer feedback
+
+**Feedback received:** [ ] Yes  [x] No — still awaiting review
+
+**Summary of feedback:**
+No reviewer feedback came in before the end of the course (Summer 2026 cohort — reviewer feedback is not a feature this term). No changes were made in response to review.
+
+**How you responded:**
+N/A — no feedback received.
+
+---
+
+### Reflection
+
+**What was harder than you expected?**
+Tracing the full production call path, and managing time across all of it. The issue description pointed to `orchestrator.py` and `session_store.py` as the fix sites, which was accurate — but it said nothing about the fact that `Orchestrator` is never actually constructed with a `SessionStore` in the production code path. The persistence layer existed as dead code. Discovering that required reading `review_service.py` and `api/main.py` and understanding how the two layers connect, not just reading the files the issue named.
+
+Time estimation was also off in a way I didn't expect. I estimated 8–16 hours total. That range was technically right, but I underestimated how unevenly the time would distribute — most of it went to comprehension (understanding the state and orchestration model, tracing the call path), not to the code change itself. The actual implementation took maybe an hour. I hadn't planned for that ratio, and it created pressure during Week 9.
+
+I also effectively did the work twice. My first pass was a careful sandbox run — tracing the code, understanding the architecture, mapping out what needed to change — before writing anything real. That was the right call, but it wasn't in my original time estimate.
+
+**What did you learn about working in a large codebase?**
+That passing tests and working production code are not the same thing. The two unit tests I wrote in Week 8 passed after the fix — `session_store.set()` now runs after each tool, and completed tools are skipped on resume. But neither test would have caught the production wiring gap: `_run_agent_orchestration` in `review_service.py` is a stub that never calls `Orchestrator` at all. In a codebase I owned, I would have noticed that immediately. In someone else's production code, it was invisible until I traced the full path.
+
+I also learned a lot about state management and orchestration as concrete things, not abstract concepts. Working through what it means for state to survive a process crash — each `setex` call as a recovery checkpoint, the resume logic as what makes durability real — gave me a model I didn't have before. Writing tests for that logic was its own education: I don't fully have testing down yet, but I learned what makes a test meaningful versus one that just exercises a code path.
+
+**How did AI tools help — and where did they fall short?**
+Claude Code was most useful for navigating to the right files, reading `orchestrator.py` and `session_store.py` together to identify the exact bug lines, and explaining why the pre-commit mypy overrides in `pyproject.toml` were the right place to suppress pre-existing errors. It also caught the `AttributeError` in `health.py` — an unrelated breakage I wouldn't have found until the server failed to start. Where it fell short was on judgment calls: how deeply to wire Redis without scope-creeping into the `review_service.py` stub, and what reviewers expect from a first-time external contributor. Those required human judgment Claude Code couldn't supply.
+
+**What would you do differently if you started over?**
+Budget time differently — treat the comprehension work as the main event, not the warmup. And read the full call path before writing any tests. I went straight to the files the issue named and wrote reproduction tests first. That was correct at the unit level, but it meant the dead code gap didn't surface until implementation, when fixing it forced a scope decision under time pressure. A call-path trace in Week 7 would have caught that earlier.
+
+**What are you most proud of from this module?**
+Opening the PR. Before this module I had never submitted a pull request to a real open source repository — not because I didn't know how, but because I always found a reason to wait: the fix wasn't polished enough, I didn't understand enough of the codebase. This course forced me past that hesitation, and what I found on the other side was that the PR was fine. The hesitation wasn't protecting quality; it was just hesitation.
+
+Writing tests is something I learned more about here than anywhere else, even if I don't fully have it yet. The two tests in `test_orchestrator.py` are genuinely good: they fail against the original code, pass after the fix, and make the bug legible to anyone who reads them. That's a bar I didn't know how to clear before this module. The goal now is to keep going — a few more real PRs, without a deadline forcing it, to build the habit into something that doesn't require external pressure.
