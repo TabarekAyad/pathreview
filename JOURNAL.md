@@ -64,3 +64,22 @@ Yes. The core change is small (moving one call inside a loop and adding a resume
 
 **Are there any blockers or dependencies?**
 No open blockers or dependent issues referenced in #47.
+
+---
+
+## Reproduction & solution planning
+
+**Reproduction commit link:** [to be added after commit]
+
+**Reproduction summary:**
+I used Claude Code to write the reproduction tests in `tests/unit/test_orchestrator.py`, understand the mypy pre-commit hook errors, and draft PLAN.md.
+
+
+Added two failing unit tests in `tests/unit/test_orchestrator.py` that directly demonstrate the bug: the first confirms that `session_store.set()` is only called once (at the end of the loop) instead of after each tool, and the second confirms that already-completed tools stored in Redis are re-run unconditionally on restart instead of being skipped. Both tests fail against the current code, confirming the issue is real and exactly located in `agent/orchestrator.py` lines 52–67.
+
+**PLAN.md link:** [to be added after commit]
+
+**Walkthrough video (recommended):** [not recorded]
+
+**Blockers or open questions:**
+`_run_agent_orchestration` in `review_service.py` is a stub that never calls `Orchestrator` — need to decide how deeply to wire the fix during Week 9 without scope-creeping into replacing the stub entirely.
