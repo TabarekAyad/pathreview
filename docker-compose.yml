@@ -36,7 +36,10 @@ services:
           memory: 256M
 
   vector-db:
-    image: chromadb/chroma:0.4.22
+    # Updated from 0.4.22: that version rebuilds hnsw on startup and pulls numpy 2.x,
+    # which breaks chromadb because np.float_ was removed in NumPy 2.0.
+    # 0.5.4 is compatible with NumPy 2.x.
+    image: chromadb/chroma:0.5.4
     ports:
       - "8001:8000"
     volumes:
